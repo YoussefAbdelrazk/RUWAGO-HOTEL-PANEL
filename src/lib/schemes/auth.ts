@@ -1,0 +1,82 @@
+import { z } from 'zod';
+
+export const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+});
+
+export const registerSchema = z
+  .object({
+    hotelName: z.string().min(2, 'Hotel name must be at least 2 characters'),
+    description: z.string().min(10, 'Description must be at least 10 characters'),
+    location: z.string().min(5, 'Location must be at least 5 characters'),
+    email: z.string().email('Invalid email address'),
+    additionalEmail: z.string().email('Invalid email address').optional().or(z.literal('')),
+    mobile: z.string().min(10, 'Mobile number must be at least 10 characters'),
+    additionalMobile: z
+      .string()
+      .min(10, 'Mobile number must be at least 10 characters')
+      .optional()
+      .or(z.literal('')),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    passwordConfirm: z.string().min(8, 'Password confirmation is required'),
+    facilityIds: z.array(z.number()).min(1, 'Please select at least one facility'),
+  })
+  .refine(data => data.password === data.passwordConfirm, {
+    message: 'Passwords do not match',
+    path: ['passwordConfirm'],
+  });
+
+export const verifyOtpSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  otp: z.string().length(6, 'OTP must be 6 digits').regex(/^\d+$/, 'OTP must contain only numbers'),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email('Invalid email address'),
+});
+
+export const verifyForgotPasswordOtpSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  otp: z.string().length(6, 'OTP must be 6 digits').regex(/^\d+$/, 'OTP must contain only numbers'),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    email: z.string().email('Invalid email address'),
+    otp: z
+      .string()
+      .length(6, 'OTP must be 6 digits')
+      .regex(/^\d+$/, 'OTP must contain only numbers'),
+    newPassword: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string().min(8, 'Password confirmation is required'),
+  })
+  .refine(data => data.newPassword === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
+export const verifyRegistrationOtpSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  otp: z.string().length(6, 'OTP must be 6 digits').regex(/^\d+$/, 'OTP must contain only numbers'),
+  hotelName: z.string().min(2, 'Hotel name must be at least 2 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  location: z.string().min(5, 'Location must be at least 5 characters'),
+  additionalEmail: z.string().email('Invalid email address').optional().or(z.literal('')),
+  mobile: z.string().min(10, 'Mobile number must be at least 10 characters'),
+  additionalMobile: z
+    .string()
+    .min(10, 'Mobile number must be at least 10 characters')
+    .optional()
+    .or(z.literal('')),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  facilityIds: z.array(z.number()).min(1, 'Please select at least one facility'),
+});
+
+export type LoginFormData = z.infer<typeof loginSchema>;
+export type RegisterFormData = z.infer<typeof registerSchema>;
+export type VerifyOtpFormData = z.infer<typeof verifyOtpSchema>;
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+export type VerifyForgotPasswordOtpFormData = z.infer<typeof verifyForgotPasswordOtpSchema>;
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+export type VerifyRegistrationOtpFormData = z.infer<typeof verifyRegistrationOtpSchema>;
