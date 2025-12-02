@@ -26,6 +26,7 @@ interface MultiSelectProps {
   onChange: (selected: (string | number)[]) => void;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function MultiSelect({
@@ -34,6 +35,7 @@ export function MultiSelect({
   onChange,
   placeholder = 'Select items...',
   className,
+  disabled = false,
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -58,6 +60,7 @@ export function MultiSelect({
           aria-expanded={open}
           className={cn('w-full justify-between min-h-9 h-auto', className)}
           onClick={() => setOpen(!open)}
+          disabled={disabled}
         >
           <div className='flex gap-1 flex-wrap'>
             {selected.length === 0 ? (

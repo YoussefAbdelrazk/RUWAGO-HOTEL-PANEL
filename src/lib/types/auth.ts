@@ -17,11 +17,13 @@ export interface RegisterRequest {
 }
 
 export interface AuthResponse {
-  token: string;
-  user: {
+  accessToken: string;
+  refreshToken: string;
+  hotel: {
     id: number;
-    email: string;
     hotelName: string;
+    email: string;
+    twoFAEnabled?: boolean;
   };
 }
 
@@ -29,11 +31,13 @@ export interface LoginResponse {
   requiresOtp: boolean;
   email?: string;
   cooldownSeconds?: number;
-  token?: string;
+  accessToken?: string;
+  refreshToken?: string;
   hotel?: {
     id: number;
     hotelName: string;
     email: string;
+    twoFAEnabled?: boolean;
   };
 }
 
@@ -43,11 +47,13 @@ export interface VerifyOtpRequest {
 }
 
 export interface VerifyOtpResponse {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   hotel: {
     id: number;
     hotelName: string;
     email: string;
+    twoFAEnabled?: boolean;
   };
 }
 
@@ -100,10 +106,21 @@ export interface VerifyRegistrationOtpRequest {
 }
 
 export interface VerifyRegistrationOtpResponse {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   hotel: {
     id: number;
     hotelName: string;
     email: string;
+    twoFAEnabled?: boolean;
   };
+}
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface RefreshTokenResponse {
+  accessToken: string;
+  refreshToken: string;
 }

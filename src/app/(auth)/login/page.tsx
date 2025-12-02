@@ -89,6 +89,13 @@ export default function LoginPage() {
 
   const onOtpSubmit = async (data: VerifyOtpFormData) => {
     try {
+      // Ensure OTP is exactly 6 digits
+      if (!data.otp || data.otp.length !== 6) {
+        toast.error('Invalid OTP', {
+          description: 'Please enter a 6-digit code',
+        });
+        return;
+      }
       await verifyOtpMutation.mutateAsync(data);
       toast.success('OTP Verified', {
         description: 'Login successful!',
@@ -117,31 +124,39 @@ export default function LoginPage() {
 
           <Form {...otpForm}>
             <form onSubmit={otpForm.handleSubmit(onOtpSubmit)} className='space-y-4'>
-              <FormField
-                control={otpForm.control}
-                name='otp'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>OTP Code</FormLabel>
-                    <FormControl>
-                      <InputOTP maxLength={6} {...field}>
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                        </InputOTPGroup>
-                        <InputOTPSeparator />
-                        <InputOTPGroup>
-                          <InputOTPSlot index={3} />
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
-                        </InputOTPGroup>
-                      </InputOTP>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className='flex justify-center'>
+                <FormField
+                  control={otpForm.control}
+                  name='otp'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>OTP Code</FormLabel>
+                      <FormControl>
+                        <InputOTP
+                          maxLength={6}
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                        >
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                          </InputOTPGroup>
+                          <InputOTPSeparator />
+                          <InputOTPGroup>
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               {cooldownSeconds !== null && cooldownSeconds > 0 && (
                 <div className='rounded-md bg-muted p-3 text-sm text-center'>

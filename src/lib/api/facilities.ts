@@ -1,7 +1,7 @@
 'use client';
 
 import type { Facility } from '@/lib/types/auth';
-import { callClientAPI } from '@/lib/utils/client-api';
+import { callAPI } from '@/lib/utils/config';
 
 const LANG = 'en';
 
@@ -11,6 +11,6 @@ interface FacilitiesResponse {
 
 export const facilitiesAPI = {
   getAll: async () => {
-    return callClientAPI<FacilitiesResponse>('GET', `/api/${LANG}/facilities`);
+    return callAPI<FacilitiesResponse>('GET', `/api/${LANG}/facilities`);
   },
 };

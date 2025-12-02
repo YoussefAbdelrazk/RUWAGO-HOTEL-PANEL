@@ -125,6 +125,7 @@ export default function RegisterPage() {
       toast.success('Registration Successful', {
         description: 'Your account has been created successfully. Welcome!',
       });
+      router.push('/login');
     } catch {
       toast.error('Verification Failed', {
         description: verifyOtpMutation.error?.message || 'Invalid OTP code',

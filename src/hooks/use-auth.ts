@@ -1,6 +1,6 @@
 'use client';
 
-import { setAuthToken } from '@/lib/actions/auth';
+import { setAuthTokens } from '@/lib/actions/auth';
 import { authAPI } from '@/lib/api/auth';
 import type {
   ForgotPasswordRequest,
@@ -27,8 +27,13 @@ export const useLogin = () => {
     },
     onSuccess: async response => {
       // If 2FA is not enabled, login is complete
-      if (response.data && !response.data.requiresOtp && response.data.token) {
-        await setAuthToken(response.data.token);
+      if (
+        response.data &&
+        !response.data.requiresOtp &&
+        response.data.accessToken &&
+        response.data.refreshToken
+      ) {
+        await setAuthTokens(response.data.accessToken, response.data.refreshToken);
         router.push('/');
       }
       // If 2FA is enabled, we'll show the OTP form (handled in component)
@@ -48,8 +53,8 @@ export const useVerifyOtp = () => {
       return response;
     },
     onSuccess: async response => {
-      if (response.data?.token) {
-        await setAuthToken(response.data.token);
+      if (response.data?.accessToken && response.data?.refreshToken) {
+        await setAuthTokens(response.data.accessToken, response.data.refreshToken);
         router.push('/');
       }
     },
@@ -122,8 +127,8 @@ export const useVerifyRegistrationOtp = () => {
       return response;
     },
     onSuccess: async response => {
-      if (response.data?.token) {
-        await setAuthToken(response.data.token);
+      if (response.data?.accessToken && response.data?.refreshToken) {
+        await setAuthTokens(response.data.accessToken, response.data.refreshToken);
         router.push('/');
       }
     },

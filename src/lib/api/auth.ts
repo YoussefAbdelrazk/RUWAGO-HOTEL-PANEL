@@ -1,4 +1,4 @@
-'use client';
+
 
 import type {
   AuthResponse,
@@ -6,6 +6,8 @@ import type {
   ForgotPasswordResponse,
   LoginRequest,
   LoginResponse,
+  RefreshTokenRequest,
+  RefreshTokenResponse,
   RegisterRequest,
   ResetPasswordRequest,
   ResetPasswordResponse,
@@ -16,25 +18,25 @@ import type {
   VerifyRegistrationOtpRequest,
   VerifyRegistrationOtpResponse,
 } from '@/lib/types/auth';
-import { callClientAPI } from '@/lib/utils/client-api';
+import { callAPI } from '@/lib/utils/config';
 
 const LANG = 'en';
 
 export const authAPI = {
   login: async (data: LoginRequest) => {
-    return callClientAPI<LoginResponse>('POST', `/api/${LANG}/auth/login`, data);
+    return callAPI<LoginResponse>('POST', `/api/${LANG}/auth/login`, data);
   },
 
   register: async (data: RegisterRequest) => {
-    return callClientAPI<AuthResponse>('POST', `/api/${LANG}/auth/register`, data);
+    return callAPI<AuthResponse>('POST', `/api/${LANG}/auth/register`, data);
   },
 
   verifyOtp: async (data: VerifyOtpRequest) => {
-    return callClientAPI<VerifyOtpResponse>('POST', `/api/${LANG}/auth/verify-otp`, data);
+    return callAPI<VerifyOtpResponse>('POST', `/api/${LANG}/auth/verify-otp`, data);
   },
 
   forgotPassword: async (data: ForgotPasswordRequest) => {
-    return callClientAPI<ForgotPasswordResponse>(
+    return callAPI<ForgotPasswordResponse>(
       'POST',
       `/api/${LANG}/forgotpassword/forgot-password`,
       data,
@@ -42,7 +44,7 @@ export const authAPI = {
   },
 
   verifyForgotPasswordOtp: async (data: VerifyForgotPasswordOtpRequest) => {
-    return callClientAPI<VerifyForgotPasswordOtpResponse>(
+    return callAPI<VerifyForgotPasswordOtpResponse>(
       'POST',
       `/api/${LANG}/forgotpassword/verify-forgot-password-otp`,
       data,
@@ -50,7 +52,7 @@ export const authAPI = {
   },
 
   resetPassword: async (data: ResetPasswordRequest) => {
-    return callClientAPI<ResetPasswordResponse>(
+    return callAPI<ResetPasswordResponse>(
       'POST',
       `/api/${LANG}/forgotpassword/reset-password`,
       data,
@@ -58,10 +60,14 @@ export const authAPI = {
   },
 
   verifyRegistrationOtp: async (data: VerifyRegistrationOtpRequest) => {
-    return callClientAPI<VerifyRegistrationOtpResponse>(
+    return callAPI<VerifyRegistrationOtpResponse>(
       'POST',
       `/api/${LANG}/auth/verify-registration-otp`,
       data,
     );
+  },
+
+  refreshToken: async (data: RefreshTokenRequest) => {
+    return callAPI<RefreshTokenResponse>('POST', `/api/${LANG}/auth/refresh-token`, data);
   },
 };
