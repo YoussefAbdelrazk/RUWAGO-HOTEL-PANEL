@@ -26,6 +26,8 @@ import {
   type VerifyForgotPasswordOtpFormData,
 } from '@/lib/schemes/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Check, EyeIcon, EyeOffIcon, X } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -33,7 +35,18 @@ import { toast } from 'sonner';
 
 type Step = 1 | 2 | 3;
 
+// Password requirements checker
+const checkPasswordRequirements = (password: string) => {
+  return {
+    minLength: password.length >= 8,
+    hasNumber: /\d/.test(password),
+    hasSymbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+  };
+};
+
 export default function ForgotPasswordPage() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [step, setStep] = useState<Step>(1);
   const [email, setEmail] = useState('');
   const [cooldownSeconds, setCooldownSeconds] = useState<number | null>(null);
@@ -87,9 +100,10 @@ export default function ForgotPasswordPage() {
       toast.success('Reset Code Sent', {
         description: response.message || 'A verification code has been sent to your email.',
       });
-    } catch {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send reset email';
       toast.error('Failed to Send Code', {
-        description: forgotPasswordMutation.error?.message || 'Failed to send reset email',
+        description: errorMessage,
       });
     }
   };
@@ -103,9 +117,10 @@ export default function ForgotPasswordPage() {
       toast.success('OTP Verified', {
         description: 'Code verified successfully. Please enter your new password.',
       });
-    } catch {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Invalid OTP code';
       toast.error('Verification Failed', {
-        description: verifyOtpMutation.error?.message || 'Invalid OTP code',
+        description: errorMessage,
       });
     }
   };
@@ -117,9 +132,10 @@ export default function ForgotPasswordPage() {
         description:
           'Your password has been reset successfully. You can now login with your new password.',
       });
-    } catch {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to reset password';
       toast.error('Reset Failed', {
-        description: resetPasswordMutation.error?.message || 'Failed to reset password',
+        description: errorMessage,
       });
     }
   };
@@ -138,6 +154,15 @@ export default function ForgotPasswordPage() {
   return (
     <div className='flex min-h-screen items-center justify-center p-4'>
       <div className='w-full max-w-md space-y-6 rounded-lg border p-6 shadow-lg'>
+        <div className='flex justify-center'>
+          <Image
+            src='/images/logo.JPG'
+            alt='Logo'
+            width={120}
+            height={120}
+            className='object-contain'
+          />
+        </div>
         {/* Step Indicator */}
         <div className='flex items-center justify-center'>
           <div className='flex items-center  gap-2'>
@@ -286,15 +311,96 @@ export default function ForgotPasswordPage() {
                 <FormField
                   control={step3Form.control}
                   name='newPassword'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>New Password</FormLabel>
-                      <FormControl>
-                        <Input type='password' placeholder='Enter your new password' {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const passwordValue = field.value || '';
+                    const requirements = checkPasswordRequirements(passwordValue);
+                    return (
+                      <FormItem>
+                        <FormLabel>
+                          New Password
+                          <span className='text-red-500'>*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <div className='space-y-2'>
+                            <div className='relative'>
+                              <Input
+                                type={showPassword ? 'text' : 'password'}
+                                placeholder='Enter your new password'
+                                className='pr-10'
+                                {...field}
+                              />
+                              <Button
+                                type='button'
+                                variant='ghost'
+                                size='icon'
+                                className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
+                                onClick={() => setShowPassword(!showPassword)}
+                              >
+                                {showPassword ? (
+                                  <EyeOffIcon className='h-4 w-4 text-muted-foreground' />
+                                ) : (
+                                  <EyeIcon className='h-4 w-4 text-muted-foreground' />
+                                )}
+                              </Button>
+                            </div>
+                            {passwordValue && (
+                              <div className='space-y-1 text-xs'>
+                                <div className='flex items-center gap-2'>
+                                  {requirements.minLength ? (
+                                    <Check className='h-3 w-3 text-green-600' />
+                                  ) : (
+                                    <X className='h-3 w-3 text-muted-foreground' />
+                                  )}
+                                  <span
+                                    className={
+                                      requirements.minLength
+                                        ? 'text-green-600'
+                                        : 'text-muted-foreground'
+                                    }
+                                  >
+                                    At least 8 characters
+                                  </span>
+                                </div>
+                                <div className='flex items-center gap-2'>
+                                  {requirements.hasNumber ? (
+                                    <Check className='h-3 w-3 text-green-600' />
+                                  ) : (
+                                    <X className='h-3 w-3 text-muted-foreground' />
+                                  )}
+                                  <span
+                                    className={
+                                      requirements.hasNumber
+                                        ? 'text-green-600'
+                                        : 'text-muted-foreground'
+                                    }
+                                  >
+                                    Contains one number
+                                  </span>
+                                </div>
+                                <div className='flex items-center gap-2'>
+                                  {requirements.hasSymbol ? (
+                                    <Check className='h-3 w-3 text-green-600' />
+                                  ) : (
+                                    <X className='h-3 w-3 text-muted-foreground' />
+                                  )}
+                                  <span
+                                    className={
+                                      requirements.hasSymbol
+                                        ? 'text-green-600'
+                                        : 'text-muted-foreground'
+                                    }
+                                  >
+                                    Contains one symbol
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
 
                 <FormField
@@ -302,9 +408,32 @@ export default function ForgotPasswordPage() {
                   name='confirmPassword'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
+                      <FormLabel>
+                        Confirm Password
+                        <span className='text-red-500'>*</span>
+                      </FormLabel>
                       <FormControl>
-                        <Input type='password' placeholder='Confirm your new password' {...field} />
+                        <div className='relative'>
+                          <Input
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            placeholder='Confirm your new password'
+                            className='pr-10'
+                            {...field}
+                          />
+                          <Button
+                            type='button'
+                            variant='ghost'
+                            size='icon'
+                            className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOffIcon className='h-4 w-4 text-muted-foreground' />
+                            ) : (
+                              <EyeIcon className='h-4 w-4 text-muted-foreground' />
+                            )}
+                          </Button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

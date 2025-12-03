@@ -11,6 +11,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import Image from 'next/image';
 // import {
 //   InputOTP,
 //   InputOTPGroup,
@@ -18,9 +19,11 @@ import { Input } from '@/components/ui/input';
 //   InputOTPSlot,
 // } from '@/components/ui/input-otp';
 import { MultiSelect } from '@/components/ui/multi-select';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { useRegister, useVerifyRegistrationOtp } from '@/hooks/use-auth';
 import { useFacilities } from '@/hooks/use-facilities';
 
+import { Textarea } from '@/components/ui/textarea';
 import {
   registerSchema,
   verifyRegistrationOtpSchema,
@@ -28,12 +31,25 @@ import {
   type VerifyRegistrationOtpFormData,
 } from '@/lib/schemes/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Check, EyeIcon, EyeOffIcon, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+
+// Password requirements checker
+const checkPasswordRequirements = (password: string) => {
+  return {
+    minLength: password.length >= 8,
+    hasNumber: /\d/.test(password),
+    hasSymbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+  };
+};
+
 export default function RegisterPage() {
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const registerMutation = useRegister();
   const verifyOtpMutation = useVerifyRegistrationOtp();
@@ -111,10 +127,11 @@ export default function RegisterPage() {
         description:
           'A verification code has been sent to your email. Please verify to complete registration.',
       });
-    } catch {
-      console.log(registerMutation.error?.message);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An error occurred during registration';
       toast.error('Registration Failed', {
-        description: registerMutation.error?.message || 'An error occurred during registration',
+        description: errorMessage,
       });
     }
   };
@@ -126,9 +143,10 @@ export default function RegisterPage() {
         description: 'Your account has been created successfully. Welcome!',
       });
       router.push('/login');
-    } catch {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Invalid OTP code';
       toast.error('Verification Failed', {
-        description: verifyOtpMutation.error?.message || 'Invalid OTP code',
+        description: errorMessage,
       });
     }
   };
@@ -150,6 +168,15 @@ export default function RegisterPage() {
     return (
       <div className='flex min-h-screen items-center justify-center p-4'>
         <div className='w-full max-w-md space-y-6 rounded-lg border p-6 shadow-lg'>
+          <div className='flex justify-center'>
+            <Image
+              src='/images/logo.JPG'
+              alt='Logo'
+              width={120}
+              height={120}
+              className='object-contain'
+            />
+          </div>
           <div className='space-y-2 text-center'>
             <h1 className='text-3xl font-bold'>Verify Registration</h1>
             <p className='text-muted-foreground'>
@@ -192,12 +219,19 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>OTP Code</FormLabel>
                       <FormControl>
-                      <Input {...field} maxLength={6} placeholder='123456' type='text' className='text-center text-2xl tracking-widest' onChange={e => {
-                        const value = e.target.value.replace(/\D/g, '');
-                        field.onChange(value);
-                      }} />
-                    </FormControl>
-                    <FormMessage />
+                        <Input
+                          {...field}
+                          maxLength={6}
+                          placeholder='123456'
+                          type='text'
+                          className='text-center text-2xl tracking-widest'
+                          onChange={e => {
+                            const value = e.target.value.replace(/\D/g, '');
+                            field.onChange(value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -227,6 +261,15 @@ export default function RegisterPage() {
   return (
     <div className='flex min-h-screen items-center justify-center p-4'>
       <div className='w-full max-w-2xl space-y-6 rounded-lg border p-6 shadow-lg'>
+        <div className='flex justify-center'>
+          <Image
+            src='/images/logo.JPG'
+            alt='Logo'
+            width={120}
+            height={120}
+            className='object-contain'
+          />
+        </div>
         <div className='space-y-2 text-center'>
           <h1 className='text-3xl font-bold'>Register</h1>
           <p className='text-muted-foreground'>Create your hotel account to get started</p>
@@ -239,7 +282,11 @@ export default function RegisterPage() {
               name='hotelName'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Hotel Name</FormLabel>
+                  <FormLabel>
+                    Hotel Name
+                    <span className='text-red-500'> *</span>
+                  </FormLabel>
+
                   <FormControl>
                     <Input placeholder='Grand Hotel' {...field} />
                   </FormControl>
@@ -253,10 +300,16 @@ export default function RegisterPage() {
               name='description'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>
+                    Description
+                    <span className='text-red-500'> *</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder='A luxurious 5-star hotel in the heart of the city'
+                    <Textarea
+                      placeholder='Enter hotel description'
+                      className='resize-none'
+                      rows={4}
+                      maxLength={255}
                       {...field}
                     />
                   </FormControl>
@@ -270,10 +323,17 @@ export default function RegisterPage() {
               name='location'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Location</FormLabel>
+                  <FormLabel>
+                    Location (Google Maps URL)
+                    <span className='text-red-500'> *</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder='123 Main Street, City, Country' {...field} />
+                    <Input type='url' placeholder='https://maps.google.com/...' {...field} />
                   </FormControl>
+                  <FormDescription>
+                    Please provide a Google Maps URL for your hotel location. You can get this by
+                    searching for your location on Google Maps and copying the URL.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -285,7 +345,10 @@ export default function RegisterPage() {
                 name='email'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>
+                      Email
+                      <span className='text-red-500'> *</span>
+                    </FormLabel>
                     <FormControl>
                       <Input type='email' placeholder='info@grandhotel.com' {...field} />
                     </FormControl>
@@ -315,9 +378,16 @@ export default function RegisterPage() {
                 name='mobile'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mobile</FormLabel>
+                    <FormLabel>
+                      Mobile
+                      <span className='text-red-500'> *</span>
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder='+1234567890' {...field} />
+                      <PhoneInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder='Enter mobile number'
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -331,7 +401,11 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Additional Mobile (Optional)</FormLabel>
                     <FormControl>
-                      <Input placeholder='+1234567891' {...field} />
+                      <PhoneInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder='Enter additional mobile number'
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -343,15 +417,96 @@ export default function RegisterPage() {
               <FormField
                 control={form.control}
                 name='password'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input type='password' placeholder='SecurePass123!' {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const passwordValue = field.value || '';
+                  const requirements = checkPasswordRequirements(passwordValue);
+                  return (
+                    <FormItem>
+                      <FormLabel>
+                        Password
+                        <span className='text-red-500'> *</span>
+                      </FormLabel>
+                      <FormControl>
+                        <div className='space-y-2'>
+                          <div className='relative'>
+                            <Input
+                              type={showPassword ? 'text' : 'password'}
+                              placeholder='SecurePass123!'
+                              className='pr-10'
+                              {...field}
+                            />
+                            <Button
+                              type='button'
+                              variant='ghost'
+                              size='icon'
+                              className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
+                              onClick={() => setShowPassword(!showPassword)}
+                            >
+                              {showPassword ? (
+                                <EyeOffIcon className='h-4 w-4 text-muted-foreground' />
+                              ) : (
+                                <EyeIcon className='h-4 w-4 text-muted-foreground' />
+                              )}
+                            </Button>
+                          </div>
+                          {passwordValue && (
+                            <div className='space-y-1 text-xs'>
+                              <div className='flex items-center gap-2'>
+                                {requirements.minLength ? (
+                                  <Check className='h-3 w-3 text-green-600' />
+                                ) : (
+                                  <X className='h-3 w-3 text-muted-foreground' />
+                                )}
+                                <span
+                                  className={
+                                    requirements.minLength
+                                      ? 'text-green-600'
+                                      : 'text-muted-foreground'
+                                  }
+                                >
+                                  At least 8 characters
+                                </span>
+                              </div>
+                              <div className='flex items-center gap-2'>
+                                {requirements.hasNumber ? (
+                                  <Check className='h-3 w-3 text-green-600' />
+                                ) : (
+                                  <X className='h-3 w-3 text-muted-foreground' />
+                                )}
+                                <span
+                                  className={
+                                    requirements.hasNumber
+                                      ? 'text-green-600'
+                                      : 'text-muted-foreground'
+                                  }
+                                >
+                                  Contains one number
+                                </span>
+                              </div>
+                              <div className='flex items-center gap-2'>
+                                {requirements.hasSymbol ? (
+                                  <Check className='h-3 w-3 text-green-600' />
+                                ) : (
+                                  <X className='h-3 w-3 text-muted-foreground' />
+                                )}
+                                <span
+                                  className={
+                                    requirements.hasSymbol
+                                      ? 'text-green-600'
+                                      : 'text-muted-foreground'
+                                  }
+                                >
+                                  Contains one symbol
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
 
               <FormField
@@ -359,9 +514,32 @@ export default function RegisterPage() {
                 name='passwordConfirm'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
+                    <FormLabel>
+                      Confirm Password
+                      <span className='text-red-500'> *</span>
+                    </FormLabel>
                     <FormControl>
-                      <Input type='password' placeholder='SecurePass123!' {...field} />
+                      <div className='relative'>
+                        <Input
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          placeholder='SecurePass123!'
+                          className='pr-10'
+                          {...field}
+                        />
+                        <Button
+                          type='button'
+                          variant='ghost'
+                          size='icon'
+                          className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOffIcon className='h-4 w-4 text-muted-foreground' />
+                          ) : (
+                            <EyeIcon className='h-4 w-4 text-muted-foreground' />
+                          )}
+                        </Button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -391,6 +569,13 @@ export default function RegisterPage() {
               )}
             />
 
+            <Button
+              type='submit'
+              className='w-full'
+              disabled={registerMutation.isPending || facilitiesLoading}
+            >
+              {registerMutation.isPending ? 'Registering...' : 'Register'}
+            </Button>
             {/* login button */}
             <div className='flex items-center justify-start gap-2'>
               <p className='text-sm text-muted-foreground'>Already have an account?</p>
@@ -403,14 +588,6 @@ export default function RegisterPage() {
                 Login
               </Button>
             </div>
-
-            <Button
-              type='submit'
-              className='w-full'
-              disabled={registerMutation.isPending || facilitiesLoading}
-            >
-              {registerMutation.isPending ? 'Registering...' : 'Register'}
-            </Button>
           </form>
         </Form>
       </div>

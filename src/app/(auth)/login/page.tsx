@@ -24,6 +24,8 @@ import {
   type VerifyOtpFormData,
 } from '@/lib/schemes/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { EyeIcon, EyeOffIcon } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -36,6 +38,7 @@ export default function LoginPage() {
   const [requiresOtp, setRequiresOtp] = useState(false);
   const [email, setEmail] = useState('');
   const [cooldownSeconds, setCooldownSeconds] = useState<number | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -80,9 +83,11 @@ export default function LoginPage() {
           description: 'You have been logged in successfully.',
         });
       }
-    } catch {
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An error occurred during login';
       toast.error('Login Failed', {
-        description: loginMutation.error?.message || 'An error occurred during login',
+        description: errorMessage,
       });
     }
   };
@@ -100,9 +105,10 @@ export default function LoginPage() {
       toast.success('OTP Verified', {
         description: 'Login successful!',
       });
-    } catch {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Invalid OTP code';
       toast.error('Verification Failed', {
-        description: verifyOtpMutation.error?.message || 'Invalid OTP code',
+        description: errorMessage,
       });
     }
   };
@@ -117,6 +123,15 @@ export default function LoginPage() {
     return (
       <div className='flex min-h-screen items-center justify-center p-4'>
         <div className='w-full max-w-md space-y-6 rounded-lg border p-6 shadow-lg'>
+          <div className='flex justify-center'>
+            <Image
+              src='/images/logo.JPG'
+              alt='Logo'
+              width={120}
+              height={120}
+              className='object-contain'
+            />
+          </div>
           <div className='space-y-2 text-center'>
             <h1 className='text-3xl font-bold'>Verify OTP</h1>
             <p className='text-muted-foreground'>Enter the 6-digit code sent to {email}</p>
@@ -188,6 +203,15 @@ export default function LoginPage() {
   return (
     <div className='flex min-h-screen items-center justify-center p-4'>
       <div className='w-full max-w-md space-y-6 rounded-lg border p-6 shadow-lg'>
+        <div className='flex justify-center'>
+          <Image
+            src='/images/logo.JPG'
+            alt='Logo'
+            width={120}
+            height={120}
+            className='object-contain'
+          />
+        </div>
         <div className='space-y-2 text-center'>
           <h1 className='text-3xl font-bold'>Login</h1>
           <p className='text-muted-foreground'>Enter your credentials to access your account</p>
@@ -216,7 +240,27 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type='password' placeholder='Enter your password' {...field} />
+                    <div className='relative'>
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder='Enter your password'
+                        className='pr-10'
+                        {...field}
+                      />
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        size='icon'
+                        className='absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent'
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOffIcon className='h-4 w-4 text-muted-foreground' />
+                        ) : (
+                          <EyeIcon className='h-4 w-4 text-muted-foreground' />
+                        )}
+                      </Button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

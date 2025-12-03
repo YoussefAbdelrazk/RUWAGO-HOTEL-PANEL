@@ -323,7 +323,8 @@ export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
                     : getImageUrl(featureImagePreview)
                 }
                 alt='Feature preview'
-                className='h-full w-full object-cover'
+                fill
+                className='object-cover'
               />
             </div>
           )}

@@ -5,11 +5,21 @@ export const loginSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
+// Google Maps URL validation regex
+const googleMapsUrlRegex =
+  /^https?:\/\/(www\.)?(maps\.google\.com|google\.com\/maps|goo\.gl\/maps|maps\.app\.goo\.gl)\/.+/i;
+
 export const registerSchema = z
   .object({
     hotelName: z.string().min(2, 'Hotel name must be at least 2 characters'),
     description: z.string().min(10, 'Description must be at least 10 characters'),
-    location: z.string().min(5, 'Location must be at least 5 characters'),
+    location: z
+      .string()
+      .min(1, 'Location is required')
+      .refine(
+        url => googleMapsUrlRegex.test(url),
+        'Please enter a valid Google Maps URL (e.g., https://maps.google.com/...)',
+      ),
     email: z.string().email('Invalid email address'),
     additionalEmail: z.string().email('Invalid email address').optional().or(z.literal('')),
     mobile: z.string().min(10, 'Mobile number must be at least 10 characters'),
@@ -61,7 +71,13 @@ export const verifyRegistrationOtpSchema = z.object({
   otp: z.string().length(6, 'OTP must be 6 digits').regex(/^\d+$/, 'OTP must contain only numbers'),
   hotelName: z.string().min(2, 'Hotel name must be at least 2 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  location: z.string().min(5, 'Location must be at least 5 characters'),
+  location: z
+    .string()
+    .min(1, 'Location is required')
+    .refine(
+      url => googleMapsUrlRegex.test(url),
+      'Please enter a valid Google Maps URL (e.g., https://maps.google.com/...)',
+    ),
   additionalEmail: z.string().email('Invalid email address').optional().or(z.literal('')),
   mobile: z.string().min(10, 'Mobile number must be at least 10 characters'),
   additionalMobile: z
