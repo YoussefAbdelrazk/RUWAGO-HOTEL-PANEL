@@ -7,12 +7,8 @@ export const updateProfileSchema = z.object({
   additionalEmail: z.string().email('Invalid email format').optional().or(z.literal('')),
   mobile: z.string().min(1, 'Mobile is required').max(20).optional(),
   additionalMobile: z.string().max(20).optional().or(z.literal('')),
-  nearestAirportName: z.string().max(200).optional().or(z.literal('')),
-  nearestAirportKm: z
-    .number()
-    .min(0, 'Distance must be positive')
-    .max(10000, 'Distance must be reasonable')
-    .optional(),
+  nearestAirportName: z.string().optional().or(z.literal('')),
+  nearestAirportKm: z.number().optional(),
   twoFAEnabled: z.boolean().optional(),
   isDisabled: z.boolean().optional(),
   facilityIds: z.array(z.number()).optional(),
@@ -30,5 +26,3 @@ export const verifyEmailChangeSchema = z.object({
 export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>;
 export type ChangeEmailInitiateFormData = z.infer<typeof changeEmailInitiateSchema>;
 export type VerifyEmailChangeFormData = z.infer<typeof verifyEmailChangeSchema>;
-
-

@@ -11,16 +11,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { MultiSelect } from '@/components/ui/multi-select';
-import { useUpdateProfile } from '@/hooks/use-profile';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { useFacilities } from '@/hooks/use-facilities';
+import { useUpdateProfile } from '@/hooks/use-profile';
+import { updateProfileSchema, type UpdateProfileFormData } from '@/lib/schemes/profile';
 import type { Profile } from '@/lib/types/profile';
-import {
-  updateProfileSchema,
-  type UpdateProfileFormData,
-} from '@/lib/schemes/profile';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -101,7 +98,9 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           name='hotelName'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Hotel Name <span className='text-red-500'> *</span></FormLabel>
+              <FormLabel>
+                Hotel Name <span className='text-red-500'> *</span>
+              </FormLabel>
               <FormControl>
                 <Input placeholder='Enter hotel name' {...field} />
               </FormControl>
@@ -115,7 +114,9 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           name='description'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description <span className='text-red-500'> *</span></FormLabel>
+              <FormLabel>
+                Description <span className='text-red-500'> *</span>
+              </FormLabel>
               <FormControl>
                 <Textarea
                   placeholder='Enter hotel description'
@@ -134,7 +135,9 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           name='location'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Location <span className='text-red-500'> *</span></FormLabel>
+              <FormLabel>
+                Location <span className='text-red-500'> *</span>
+              </FormLabel>
               <FormControl>
                 <Input placeholder='Enter location' {...field} />
               </FormControl>
@@ -149,7 +152,9 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             name='mobile'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Mobile <span className='text-red-500'> *</span></FormLabel>
+                <FormLabel>
+                  Mobile <span className='text-red-500'> *</span>
+                </FormLabel>
                 <FormControl>
                   <Input placeholder='Enter mobile number' {...field} />
                 </FormControl>
@@ -195,7 +200,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               <FormItem>
                 <FormLabel>Nearest Airport Name</FormLabel>
                 <FormControl>
-                  <Input readOnly disabled placeholder='Enter airport name' {...field} />
+                  <Input readOnly placeholder='Enter airport name' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -209,11 +214,14 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               <FormItem>
                 <FormLabel>Distance (km)</FormLabel>
                 <FormControl>
-                  <Input readOnly disabled
+                  <Input
+                    readOnly
                     type='number'
                     placeholder='Enter distance in km'
                     {...field}
-                    onChange={e => field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)}
+                    onChange={e =>
+                      field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -227,7 +235,9 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           name='facilityIds'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Facilities <span className='text-red-500'> *</span></FormLabel>
+              <FormLabel>
+                Facilities <span className='text-red-500'> *</span>
+              </FormLabel>
               <FormControl>
                 <MultiSelect
                   options={facilityOptions}

@@ -148,3 +148,28 @@
     opacity: 0.9;
   }
 }
+
+
+body{
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Hide scrollbars globally */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Apply overflow-y: hidden only to dashboard routes */
+html.dashboard-overflow-hidden,
+html.dashboard-overflow-hidden body {
+  overflow-y: hidden;
+}

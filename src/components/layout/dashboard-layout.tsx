@@ -13,7 +13,7 @@ import {
 import { Home, Hotel, LogOut, Menu, Settings, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -22,6 +22,14 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Add class to html element to enable overflow-y: hidden for dashboard
+  useEffect(() => {
+    document.documentElement.classList.add('dashboard-overflow-hidden');
+    return () => {
+      document.documentElement.classList.remove('dashboard-overflow-hidden');
+    };
+  }, []);
 
   // const handleLogout = async () => {
   //   tokenStorage.removeTokens();
