@@ -101,7 +101,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           name='hotelName'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Hotel Name</FormLabel>
+              <FormLabel>Hotel Name <span className='text-red-500'> *</span></FormLabel>
               <FormControl>
                 <Input placeholder='Enter hotel name' {...field} />
               </FormControl>
@@ -115,7 +115,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           name='description'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Description <span className='text-red-500'> *</span></FormLabel>
               <FormControl>
                 <Textarea
                   placeholder='Enter hotel description'
@@ -134,7 +134,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           name='location'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Location</FormLabel>
+              <FormLabel>Location <span className='text-red-500'> *</span></FormLabel>
               <FormControl>
                 <Input placeholder='Enter location' {...field} />
               </FormControl>
@@ -149,7 +149,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             name='mobile'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Mobile</FormLabel>
+                <FormLabel>Mobile <span className='text-red-500'> *</span></FormLabel>
                 <FormControl>
                   <Input placeholder='Enter mobile number' {...field} />
                 </FormControl>
@@ -195,7 +195,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               <FormItem>
                 <FormLabel>Nearest Airport Name</FormLabel>
                 <FormControl>
-                  <Input placeholder='Enter airport name' {...field} />
+                  <Input readOnly disabled placeholder='Enter airport name' {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -209,7 +209,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               <FormItem>
                 <FormLabel>Distance (km)</FormLabel>
                 <FormControl>
-                  <Input
+                  <Input readOnly disabled
                     type='number'
                     placeholder='Enter distance in km'
                     {...field}
@@ -227,7 +227,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           name='facilityIds'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Facilities</FormLabel>
+              <FormLabel>Facilities <span className='text-red-500'> *</span></FormLabel>
               <FormControl>
                 <MultiSelect
                   options={facilityOptions}
@@ -263,7 +263,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           />
         </div>
 
-        <div className='flex items-center space-x-6'>
+        {/* <div className='flex items-center space-x-6'>
           <FormField
             control={form.control}
             name='isDisabled'
@@ -279,7 +279,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               </FormItem>
             )}
           />
-        </div>
+        </div> */}
 
         <Button type='submit' disabled={updateProfileMutation.isPending}>
           {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
@@ -288,4 +288,3 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     </Form>
   );
 }
-

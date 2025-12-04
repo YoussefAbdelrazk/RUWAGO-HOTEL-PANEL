@@ -25,7 +25,7 @@ import {
   type VerifyEmailChangeFormData,
 } from '@/lib/schemes/profile';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface ChangeEmailFormProps {
@@ -37,6 +37,7 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
   const verifyMutation = useVerifyEmailChange();
   const [showOtpForm, setShowOtpForm] = useState(false);
   const [newEmail, setNewEmail] = useState('');
+  const [resendCountdown, setResendCountdown] = useState<number | null>(null);
 
   const initiateForm = useForm<ChangeEmailInitiateFormData>({
     resolver: zodResolver(changeEmailInitiateSchema),
@@ -52,6 +53,37 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
       otp: '',
     },
   });
+
+  const handleResendOtp = useCallback(async () => {
+    if (!newEmail) return;
+    try {
+      await initiateMutation.mutateAsync({ newEmail });
+      setResendCountdown(180); // Reset countdown
+    } catch {
+      // Error is handled by the hook's onError
+    }
+  }, [newEmail, initiateMutation]);
+
+  // Auto-resend countdown timer
+  useEffect(() => {
+    if (showOtpForm && newEmail) {
+      // Start countdown at 180 seconds
+      setResendCountdown(180);
+    }
+  }, [showOtpForm, newEmail]);
+
+  // Countdown timer effect for auto-resend
+  useEffect(() => {
+    if (resendCountdown !== null && resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(prev => (prev !== null && prev > 0 ? prev - 1 : null));
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (resendCountdown === 0 && newEmail && showOtpForm) {
+      // Auto-resend when countdown reaches 0
+      handleResendOtp();
+    }
+  }, [resendCountdown, newEmail, showOtpForm, handleResendOtp]);
 
   const onInitiateSubmit = async (data: ChangeEmailInitiateFormData) => {
     try {
@@ -81,6 +113,7 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
 
   const handleBack = () => {
     setShowOtpForm(false);
+    setResendCountdown(null);
     otpForm.reset();
   };
 
@@ -123,6 +156,12 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
               )}
             />
 
+            {resendCountdown !== null && resendCountdown > 0 && (
+              <div className='rounded-md bg-muted p-3 text-sm text-center'>
+                Resend code available in {resendCountdown} seconds
+              </div>
+            )}
+
             <div className='flex gap-4'>
               <Button type='button' variant='outline' onClick={handleBack}>
                 Back
@@ -131,6 +170,23 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
                 {verifyMutation.isPending ? 'Verifying...' : 'Verify Email'}
               </Button>
             </div>
+
+            <Button
+              type='button'
+              variant='link'
+              className='w-full'
+              onClick={handleResendOtp}
+              disabled={
+                (resendCountdown !== null && resendCountdown > 0) ||
+                initiateMutation.isPending
+              }
+            >
+              {initiateMutation.isPending
+                ? 'Resending...'
+                : resendCountdown !== null && resendCountdown > 0
+                  ? `Resend Code (${resendCountdown}s)`
+                  : 'Resend Code'}
+            </Button>
           </form>
         </Form>
       </div>

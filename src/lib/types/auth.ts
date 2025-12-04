@@ -8,9 +8,9 @@ export interface RegisterRequest {
   description: string;
   location: string;
   email: string;
-  additionalEmail?: string;
+  additionalEmail?: string | null;
   mobile: string;
-  additionalMobile?: string;
+  additionalMobile?: string | null;
   password: string;
   passwordConfirm: string;
   facilityIds: number[];
@@ -98,9 +98,9 @@ export interface VerifyRegistrationOtpRequest {
   hotelName: string;
   description: string;
   location: string;
-  additionalEmail?: string;
+  additionalEmail?: string | null;
   mobile: string;
-  additionalMobile?: string;
+  additionalMobile?: string | null;
   password: string;
   facilityIds: number[];
 }

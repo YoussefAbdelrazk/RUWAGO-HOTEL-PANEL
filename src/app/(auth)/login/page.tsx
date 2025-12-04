@@ -27,7 +27,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -39,6 +39,8 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [cooldownSeconds, setCooldownSeconds] = useState<number | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState<number | null>(null);
+  const [loginFormData, setLoginFormData] = useState<LoginFormData | null>(null);
 
   const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -66,6 +68,47 @@ export default function LoginPage() {
     }
   }, [cooldownSeconds]);
 
+  const handleResendOtp = useCallback(async () => {
+    if (!loginFormData) return;
+    try {
+      const response = await loginMutation.mutateAsync(loginFormData);
+      setResendCountdown(180); // Reset countdown
+      if (response.data?.cooldownSeconds) {
+        setCooldownSeconds(response.data.cooldownSeconds);
+      }
+      toast.success('OTP Resent', {
+        description: 'A new verification code has been sent to your email.',
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An error occurred during resend';
+      toast.error('Resend Failed', {
+        description: errorMessage,
+      });
+    }
+  }, [loginFormData, loginMutation]);
+
+  // Auto-resend countdown timer
+  useEffect(() => {
+    if (requiresOtp && loginFormData) {
+      // Start countdown at 180 seconds
+      setResendCountdown(180);
+    }
+  }, [requiresOtp, loginFormData]);
+
+  // Countdown timer effect for auto-resend
+  useEffect(() => {
+    if (resendCountdown !== null && resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(prev => (prev !== null && prev > 0 ? prev - 1 : null));
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (resendCountdown === 0 && loginFormData) {
+      // Auto-resend when countdown reaches 0
+      handleResendOtp();
+    }
+  }, [resendCountdown, loginFormData, handleResendOtp]);
+
   const onLoginSubmit = async (data: LoginFormData) => {
     try {
       const response = await loginMutation.mutateAsync(data);
@@ -73,6 +116,7 @@ export default function LoginPage() {
         setRequiresOtp(true);
         setEmail(response.data.email || data.email);
         setCooldownSeconds(response.data.cooldownSeconds || null);
+        setLoginFormData(data); // Store form data for resend
         otpForm.setValue('email', response.data.email || data.email);
         toast.success('OTP Sent', {
           description:
@@ -116,6 +160,8 @@ export default function LoginPage() {
   const handleBackToLogin = () => {
     setRequiresOtp(false);
     setCooldownSeconds(null);
+    setResendCountdown(null);
+    setLoginFormData(null);
     otpForm.reset();
   };
 
@@ -173,11 +219,7 @@ export default function LoginPage() {
                 />
               </div>
 
-              {cooldownSeconds !== null && cooldownSeconds > 0 && (
-                <div className='rounded-md bg-muted p-3 text-sm text-center'>
-                  Resend code available in {cooldownSeconds} seconds
-                </div>
-              )}
+             
 
               <div className='flex gap-2'>
                 <Button
@@ -193,6 +235,26 @@ export default function LoginPage() {
                   {verifyOtpMutation.isPending ? 'Verifying...' : 'Verify'}
                 </Button>
               </div>
+
+              <Button
+                type='button'
+                variant='link'
+                className='w-full'
+                onClick={handleResendOtp}
+                disabled={
+                  (resendCountdown !== null && resendCountdown > 0) ||
+                  (cooldownSeconds !== null && cooldownSeconds > 0) ||
+                  loginMutation.isPending
+                }
+              >
+                {loginMutation.isPending
+                  ? 'Resending...'
+                  : resendCountdown !== null && resendCountdown > 0
+                  ? `Resend Code (${resendCountdown}s)`
+                  : cooldownSeconds !== null && cooldownSeconds > 0
+                  ? `Resend Code (${cooldownSeconds}s)`
+                  : 'Resend Code'}
+              </Button>
             </form>
           </Form>
         </div>
@@ -214,7 +276,7 @@ export default function LoginPage() {
         </div>
         <div className='space-y-2 text-center'>
           <h1 className='text-3xl font-bold'>Login</h1>
-          <p className='text-muted-foreground'>Enter your credentials to access your account</p>
+          <p className='text-muted-foreground'>Welcome To Ruwago Hotel Management System</p>
         </div>
 
         <Form {...loginForm}>
@@ -267,8 +329,8 @@ export default function LoginPage() {
               )}
             />
 
-            <div className='flex items-center justify-between gap-2'>
-              <p className='text-sm text-muted-foreground'>Forgot your password?</p>
+            <div className='flex items-center justify-end gap-2'>
+              {/* <p className='text-sm text-muted-foreground'>Forgot your password?</p> */}
               <Button
                 type='button'
                 variant='link'
@@ -282,7 +344,7 @@ export default function LoginPage() {
             <Button type='submit' className='w-full' disabled={loginMutation.isPending}>
               {loginMutation.isPending ? 'Logging in...' : 'Login'}
             </Button>
-            <div className='flex items-center justify-start gap-2'>
+            <div className='flex items-center justify-start '>
               <p className='text-sm text-muted-foreground'>Don&apos;t have an account?</p>
               <Button
                 type='button'

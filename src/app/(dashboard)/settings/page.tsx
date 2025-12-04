@@ -1,11 +1,11 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProfile } from '@/hooks/use-profile';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ProfileForm } from './profile-form';
 import { ChangeEmailForm } from './change-email-form';
+import { ProfileForm } from './profile-form';
 
 export default function SettingsPage() {
   const { data: profile, isLoading } = useProfile();

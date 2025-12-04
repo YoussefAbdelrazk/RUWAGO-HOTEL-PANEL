@@ -29,7 +29,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, EyeIcon, EyeOffIcon, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -50,6 +50,7 @@ export default function ForgotPasswordPage() {
   const [step, setStep] = useState<Step>(1);
   const [email, setEmail] = useState('');
   const [cooldownSeconds, setCooldownSeconds] = useState<number | null>(null);
+  const [resendCountdown, setResendCountdown] = useState<number | null>(null);
 
   const forgotPasswordMutation = useForgotPassword();
   const verifyOtpMutation = useVerifyForgotPasswordOtp();
@@ -89,6 +90,47 @@ export default function ForgotPasswordPage() {
       return () => clearTimeout(timer);
     }
   }, [cooldownSeconds]);
+
+  const handleResendOtp = useCallback(async () => {
+    if (!email) return;
+    try {
+      const response = await forgotPasswordMutation.mutateAsync({ email });
+      setResendCountdown(180); // Reset countdown
+      if (response.data?.cooldownSeconds) {
+        setCooldownSeconds(response.data.cooldownSeconds);
+      }
+      toast.success('OTP Resent', {
+        description: 'A new verification code has been sent to your email.',
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An error occurred during resend';
+      toast.error('Resend Failed', {
+        description: errorMessage,
+      });
+    }
+  }, [email, forgotPasswordMutation]);
+
+  // Auto-resend countdown timer
+  useEffect(() => {
+    if (step === 2 && email) {
+      // Start countdown at 180 seconds
+      setResendCountdown(180);
+    }
+  }, [step, email]);
+
+  // Countdown timer effect for auto-resend
+  useEffect(() => {
+    if (resendCountdown !== null && resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(prev => (prev !== null && prev > 0 ? prev - 1 : null));
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (resendCountdown === 0 && email && step === 2) {
+      // Auto-resend when countdown reaches 0
+      handleResendOtp();
+    }
+  }, [resendCountdown, email, step, handleResendOtp]);
 
   const onStep1Submit = async (data: ForgotPasswordFormData) => {
     try {
@@ -145,6 +187,7 @@ export default function ForgotPasswordPage() {
       setStep(1);
       step2Form.reset();
       setCooldownSeconds(null);
+      setResendCountdown(null);
     } else if (step === 3) {
       setStep(2);
       step3Form.reset();
@@ -273,11 +316,7 @@ export default function ForgotPasswordPage() {
                   />
                 </div>
 
-                {cooldownSeconds !== null && cooldownSeconds > 0 && (
-                  <div className='rounded-md bg-muted p-3 text-sm text-center'>
-                    Resend code available in {cooldownSeconds} seconds
-                  </div>
-                )}
+                
 
                 <div className='flex gap-2'>
                   <Button
@@ -293,6 +332,26 @@ export default function ForgotPasswordPage() {
                     {verifyOtpMutation.isPending ? 'Verifying...' : 'Verify'}
                   </Button>
                 </div>
+
+                <Button
+                  type='button'
+                  variant='link'
+                  className='w-full'
+                  onClick={handleResendOtp}
+                  disabled={
+                    (resendCountdown !== null && resendCountdown > 0) ||
+                    (cooldownSeconds !== null && cooldownSeconds > 0) ||
+                    forgotPasswordMutation.isPending
+                  }
+                >
+                  {forgotPasswordMutation.isPending
+                    ? 'Resending...'
+                    : resendCountdown !== null && resendCountdown > 0
+                    ? `Resend Code (${resendCountdown}s)`
+                    : cooldownSeconds !== null && cooldownSeconds > 0
+                    ? `Resend Code (${cooldownSeconds}s)`
+                    : 'Resend Code'}
+                </Button>
               </form>
             </Form>
           </>

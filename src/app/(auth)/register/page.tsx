@@ -23,6 +23,12 @@ import { PhoneInput } from '@/components/ui/phone-input';
 import { useRegister, useVerifyRegistrationOtp } from '@/hooks/use-auth';
 import { useFacilities } from '@/hooks/use-facilities';
 
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from '@/components/ui/input-otp';
 import { Textarea } from '@/components/ui/textarea';
 import {
   registerSchema,
@@ -30,10 +36,11 @@ import {
   type RegisterFormData,
   type VerifyRegistrationOtpFormData,
 } from '@/lib/schemes/auth';
+import type { RegisterRequest } from '@/lib/types/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, EyeIcon, EyeOffIcon, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -55,8 +62,9 @@ export default function RegisterPage() {
   const verifyOtpMutation = useVerifyRegistrationOtp();
   const { data: facilities, isLoading: facilitiesLoading } = useFacilities();
   const [showOtpForm, setShowOtpForm] = useState(false);
-  const [registrationData, setRegistrationData] = useState<RegisterFormData | null>(null);
+  const [registrationData, setRegistrationData] = useState<RegisterRequest | null>(null);
   const hasResetOtpForm = useRef(false);
+  const [resendCountdown, setResendCountdown] = useState<number | null>(null);
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -114,14 +122,59 @@ export default function RegisterPage() {
   useEffect(() => {
     if (!showOtpForm) {
       hasResetOtpForm.current = false;
+      setResendCountdown(null);
     }
   }, [showOtpForm]);
 
+  const handleResendOtp = useCallback(async () => {
+    if (!registrationData) return;
+    try {
+      await registerMutation.mutateAsync(registrationData);
+      setResendCountdown(180); // Reset countdown
+      toast.success('OTP Resent', {
+        description: 'A new verification code has been sent to your email.',
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An error occurred during resend';
+      toast.error('Resend Failed', {
+        description: errorMessage,
+      });
+    }
+  }, [registrationData, registerMutation]);
+
+  // Auto-resend countdown timer
+  useEffect(() => {
+    if (showOtpForm && registrationData) {
+      // Start countdown at 180 seconds
+      setResendCountdown(180);
+    }
+  }, [showOtpForm, registrationData]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (resendCountdown !== null && resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(prev => (prev !== null && prev > 0 ? prev - 1 : null));
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (resendCountdown === 0 && registrationData) {
+      // Auto-resend when countdown reaches 0
+      handleResendOtp();
+    }
+  }, [resendCountdown, registrationData, handleResendOtp]);
+
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      console.log(data);
-      await registerMutation.mutateAsync(data);
-      setRegistrationData(data);
+      // Convert empty strings to null for optional fields
+      const submitData = {
+        ...data,
+        additionalEmail: data.additionalEmail?.trim() || null,
+        additionalMobile: data.additionalMobile?.trim() || null,
+      };
+      console.log(submitData);
+      await registerMutation.mutateAsync(submitData);
+      setRegistrationData(submitData);
       setShowOtpForm(true);
       toast.success('OTP Sent', {
         description:
@@ -138,7 +191,13 @@ export default function RegisterPage() {
 
   const onOtpSubmit = async (data: VerifyRegistrationOtpFormData) => {
     try {
-      await verifyOtpMutation.mutateAsync(data);
+      // Convert empty strings to null for optional fields
+      const submitData = {
+        ...data,
+        additionalEmail: data.additionalEmail?.trim() || null,
+        additionalMobile: data.additionalMobile?.trim() || null,
+      };
+      await verifyOtpMutation.mutateAsync(submitData);
       toast.success('Registration Successful', {
         description: 'Your account has been created successfully. Welcome!',
       });
@@ -211,7 +270,7 @@ export default function RegisterPage() {
                   </FormItem>
                 )}
               /> */}
-              <div>
+              <div className='flex justify-center'>
                 <FormField
                   control={otpForm.control}
                   name='otp'
@@ -219,23 +278,37 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel>OTP Code</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
+                        <InputOTP
                           maxLength={6}
-                          placeholder='123456'
-                          type='text'
-                          className='text-center text-2xl tracking-widest'
-                          onChange={e => {
-                            const value = e.target.value.replace(/\D/g, '');
-                            field.onChange(value);
-                          }}
-                        />
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                        >
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                          </InputOTPGroup>
+                          <InputOTPSeparator />
+                          <InputOTPGroup>
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
+
+              {resendCountdown !== null && resendCountdown > 0 && (
+                <div className='rounded-md bg-muted p-3 text-sm text-center'>
+                  Resend code available in {resendCountdown} seconds
+                </div>
+              )}
 
               <div className='flex gap-2'>
                 <Button
@@ -251,6 +324,22 @@ export default function RegisterPage() {
                   {verifyOtpMutation.isPending ? 'Verifying...' : 'Verify'}
                 </Button>
               </div>
+
+              <Button
+                type='button'
+                variant='link'
+                className='w-full'
+                onClick={handleResendOtp}
+                disabled={
+                  (resendCountdown !== null && resendCountdown > 0) || registerMutation.isPending
+                }
+              >
+                {registerMutation.isPending
+                  ? 'Resending...'
+                  : resendCountdown !== null && resendCountdown > 0
+                  ? `Resend Code (${resendCountdown}s)`
+                  : 'Resend Code'}
+              </Button>
             </form>
           </Form>
         </div>
@@ -309,7 +398,7 @@ export default function RegisterPage() {
                       placeholder='Enter hotel description'
                       className='resize-none'
                       rows={4}
-                      maxLength={255}
+                      maxLength={2000}
                       {...field}
                     />
                   </FormControl>
