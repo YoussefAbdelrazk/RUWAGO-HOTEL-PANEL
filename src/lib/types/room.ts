@@ -1,3 +1,14 @@
+export interface PriceIncreaseRange {
+  StartDate: string; // YYYY-MM-DD format
+  EndDate: string; // YYYY-MM-DD format
+  IncreaseValue: number; // Percentage (0-1000)
+}
+
+export interface ExcludedDateRange {
+  StartDate: string; // YYYY-MM-DD format
+  EndDate: string; // YYYY-MM-DD format
+}
+
 export interface Room {
   id: number;
   roomName: string;
@@ -8,6 +19,8 @@ export interface Room {
   featureImage: string;
   galleryImages?: string[];
   numberOfRooms?: number;
+  priceIncreaseRanges?: PriceIncreaseRange[];
+  excludedDateRanges?: ExcludedDateRange[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -29,6 +42,8 @@ export interface CreateRoomRequest {
   FeatureImage: File;
   GalleryImages?: File[];
   NumberOfRooms: string;
+  PriceIncreaseRanges?: PriceIncreaseRange[];
+  ExcludedDateRanges?: ExcludedDateRange[];
 }
 
 export interface UpdateRoomRequest {
@@ -39,6 +54,6 @@ export interface UpdateRoomRequest {
   Facilities?: string[];
   FeatureImage?: File;
   GalleryImages?: File[];
+  PriceIncreaseRanges?: PriceIncreaseRange[];
+  ExcludedDateRanges?: ExcludedDateRange[];
 }
-
-

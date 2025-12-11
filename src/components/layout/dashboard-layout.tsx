@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import { Home, Hotel, LogOut, Menu, Settings, User } from 'lucide-react';
+import { Calendar, CreditCard, Home, Hotel, LogOut, Menu, Settings, User } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -40,6 +40,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const navItems = [
     { href: '/', label: 'Dashboard', icon: Home },
     { href: '/rooms', label: 'Rooms', icon: Hotel },
+    { href: '/bookings', label: 'Bookings', icon: Calendar },
+    { href: '/payout', label: 'Payout', icon: CreditCard },
     { href: '/settings', label: 'Settings', icon: Settings },
   ];
 

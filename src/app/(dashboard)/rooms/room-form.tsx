@@ -24,7 +24,7 @@ import {
 import { CreateRoomRequest, UpdateRoomRequest } from '@/lib/types/room';
 import { getImageUrl } from '@/lib/utils/image';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -53,6 +53,8 @@ export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
       FeatureImage: undefined,
       GalleryImages: [],
       NumberOfRooms: '0',
+      PriceIncreaseRanges: [],
+      ExcludedDateRanges: [],
     },
   });
 
@@ -66,6 +68,8 @@ export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
       Facilities: [],
       FeatureImage: undefined,
       GalleryImages: [],
+      PriceIncreaseRanges: [],
+      ExcludedDateRanges: [],
     },
   });
 
@@ -117,6 +121,12 @@ export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
         if (formData.GalleryImages && formData.GalleryImages.length > 0) {
           updateData.GalleryImages = formData.GalleryImages;
         }
+        if (formData.PriceIncreaseRanges && formData.PriceIncreaseRanges.length > 0) {
+          updateData.PriceIncreaseRanges = formData.PriceIncreaseRanges;
+        }
+        if (formData.ExcludedDateRanges && formData.ExcludedDateRanges.length > 0) {
+          updateData.ExcludedDateRanges = formData.ExcludedDateRanges;
+        }
         await updateRoomMutation.mutateAsync({
           roomId,
           data: updateData,
@@ -133,6 +143,8 @@ export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
           FeatureImage: formData.FeatureImage as File,
           GalleryImages: formData.GalleryImages,
           NumberOfRooms: formData.NumberOfRooms,
+          PriceIncreaseRanges: formData.PriceIncreaseRanges,
+          ExcludedDateRanges: formData.ExcludedDateRanges,
         };
         await createRoomMutation.mutateAsync(createData);
         toast.success('Room created successfully');
@@ -380,12 +392,221 @@ export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
         </div>
       </div>
 
+      {/* Price Increase Ranges */}
+      <div className='space-y-4'>
+        <div className='flex items-center justify-between'>
+          <Label className='text-base font-semibold'>Price Increase Ranges</Label>
+          <Button
+            type='button'
+            variant='outline'
+            size='sm'
+            onClick={() => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const formValues = form.getValues() as any;
+              const currentRanges = (formValues.PriceIncreaseRanges || []) as Array<{
+                StartDate: string;
+                EndDate: string;
+                IncreaseValue: number;
+              }>;
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (form.setValue as any)('PriceIncreaseRanges', [
+                ...currentRanges,
+                { StartDate: '', EndDate: '', IncreaseValue: 0 },
+              ]);
+            }}
+          >
+            <Plus className='mr-2 h-4 w-4' />
+            Add Range
+          </Button>
+        </div>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        {((form.watch as any)('PriceIncreaseRanges') || []).map(
+          (range: { StartDate: string; EndDate: string; IncreaseValue: number }, index: number) => (
+            <div key={index} className='rounded-lg border p-4 space-y-4'>
+              <div className='flex items-center justify-between'>
+                <Label className='text-sm font-medium'>Price Increase Range {index + 1}</Label>
+                <Button
+                  type='button'
+                  variant='ghost'
+                  size='icon'
+                  onClick={() => {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const formValues = form.getValues() as any;
+                    const currentRanges = (formValues.PriceIncreaseRanges || []) as Array<{
+                      StartDate: string;
+                      EndDate: string;
+                      IncreaseValue: number;
+                    }>;
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    (form.setValue as any)(
+                      'PriceIncreaseRanges',
+                      currentRanges.filter((_, i) => i !== index),
+                    );
+                  }}
+                >
+                  <X className='h-4 w-4' />
+                </Button>
+              </div>
+              <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+                <FormField
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  control={form.control as any}
+                  name={`PriceIncreaseRanges.${index}.StartDate`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Date</FormLabel>
+                      <FormControl>
+                        <Input type='date' {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  control={form.control as any}
+                  name={`PriceIncreaseRanges.${index}.EndDate`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Date</FormLabel>
+                      <FormControl>
+                        <Input type='date' {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  control={form.control as any}
+                  name={`PriceIncreaseRanges.${index}.IncreaseValue`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Increase Value (%)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type='number'
+                          min={0}
+                          max={1000}
+                          {...field}
+                          onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          ),
+        )}
+      </div>
+
+      {/* Excluded Date Ranges */}
+      <div className='space-y-4'>
+        <div className='flex items-center justify-between'>
+          <Label className='text-base font-semibold'>Excluded Date Ranges</Label>
+          <Button
+            type='button'
+            variant='outline'
+            size='sm'
+            onClick={() => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const formValues = form.getValues() as any;
+              const currentRanges = (formValues.ExcludedDateRanges || []) as Array<{
+                StartDate: string;
+                EndDate: string;
+              }>;
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (form.setValue as any)('ExcludedDateRanges', [
+                ...currentRanges,
+                { StartDate: '', EndDate: '' },
+              ]);
+            }}
+          >
+            <Plus className='mr-2 h-4 w-4' />
+            Add Range
+          </Button>
+        </div>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        {((form.watch as any)('ExcludedDateRanges') || []).map(
+          (range: { StartDate: string; EndDate: string }, index: number) => (
+            <div key={index} className='rounded-lg border p-4 space-y-4'>
+              <div className='flex items-center justify-between'>
+                <Label className='text-sm font-medium'>Excluded Date Range {index + 1}</Label>
+                <Button
+                  type='button'
+                  variant='ghost'
+                  size='icon'
+                  onClick={() => {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const formValues = form.getValues() as any;
+                    const currentRanges = (formValues.ExcludedDateRanges || []) as Array<{
+                      StartDate: string;
+                      EndDate: string;
+                    }>;
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    (form.setValue as any)(
+                      'ExcludedDateRanges',
+                      currentRanges.filter((_, i) => i !== index),
+                    );
+                  }}
+                >
+                  <X className='h-4 w-4' />
+                </Button>
+              </div>
+              <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                <FormField
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  control={form.control as any}
+                  name={`ExcludedDateRanges.${index}.StartDate`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Date</FormLabel>
+                      <FormControl>
+                        <Input type='date' {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  control={form.control as any}
+                  name={`ExcludedDateRanges.${index}.EndDate`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Date</FormLabel>
+                      <FormControl>
+                        <Input type='date' {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          ),
+        )}
+      </div>
+
       <div className='flex justify-end gap-2'>
         <Button
           type='button'
           variant='outline'
           onClick={() => {
-            form.reset();
+            form.reset({
+              RoomName: '',
+              RoomType: '',
+              BedsCount: '',
+              Sqft: '',
+              Facilities: [],
+              FeatureImage: undefined,
+              GalleryImages: [],
+              NumberOfRooms: formIsEdit ? undefined : '0',
+              PriceIncreaseRanges: [],
+              ExcludedDateRanges: [],
+            });
             setFeatureImagePreview(null);
             setGalleryPreviews([]);
           }}

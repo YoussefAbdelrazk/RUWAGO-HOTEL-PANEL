@@ -43,6 +43,26 @@ export const roomsAPI = {
       });
     }
 
+    // Append price increase ranges
+    if (data.PriceIncreaseRanges && data.PriceIncreaseRanges.length > 0) {
+      data.PriceIncreaseRanges.forEach((range, index) => {
+        formData.append(`PriceIncreaseRanges[${index}].StartDate`, range.StartDate);
+        formData.append(`PriceIncreaseRanges[${index}].EndDate`, range.EndDate);
+        formData.append(
+          `PriceIncreaseRanges[${index}].IncreaseValue`,
+          range.IncreaseValue.toString(),
+        );
+      });
+    }
+
+    // Append excluded date ranges
+    if (data.ExcludedDateRanges && data.ExcludedDateRanges.length > 0) {
+      data.ExcludedDateRanges.forEach((range, index) => {
+        formData.append(`ExcludedDateRanges[${index}].StartDate`, range.StartDate);
+        formData.append(`ExcludedDateRanges[${index}].EndDate`, range.EndDate);
+      });
+    }
+
     return callAPI<RoomResponse>('POST', `/api/${LANG}/rooms`, formData, undefined, true);
   },
 
@@ -70,6 +90,26 @@ export const roomsAPI = {
     if (data.GalleryImages && data.GalleryImages.length > 0) {
       data.GalleryImages.forEach(image => {
         formData.append('GalleryImages', image);
+      });
+    }
+
+    // Append price increase ranges if provided
+    if (data.PriceIncreaseRanges && data.PriceIncreaseRanges.length > 0) {
+      data.PriceIncreaseRanges.forEach((range, index) => {
+        formData.append(`PriceIncreaseRanges[${index}].StartDate`, range.StartDate);
+        formData.append(`PriceIncreaseRanges[${index}].EndDate`, range.EndDate);
+        formData.append(
+          `PriceIncreaseRanges[${index}].IncreaseValue`,
+          range.IncreaseValue.toString(),
+        );
+      });
+    }
+
+    // Append excluded date ranges if provided
+    if (data.ExcludedDateRanges && data.ExcludedDateRanges.length > 0) {
+      data.ExcludedDateRanges.forEach((range, index) => {
+        formData.append(`ExcludedDateRanges[${index}].StartDate`, range.StartDate);
+        formData.append(`ExcludedDateRanges[${index}].EndDate`, range.EndDate);
       });
     }
 

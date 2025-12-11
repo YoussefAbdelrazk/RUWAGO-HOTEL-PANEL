@@ -1,5 +1,38 @@
 import { z } from 'zod';
 
+const dateStringSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format');
+
+const priceIncreaseRangeSchema = z.object({
+  StartDate: dateStringSchema,
+  EndDate: dateStringSchema,
+  IncreaseValue: z.number().min(0, 'Increase value must be positive').max(1000, 'Increase value must be reasonable'),
+}).refine(
+  data => {
+    const start = new Date(data.StartDate);
+    const end = new Date(data.EndDate);
+    return end >= start;
+  },
+  {
+    message: 'End date must be after or equal to start date',
+    path: ['EndDate'],
+  }
+);
+
+const excludedDateRangeSchema = z.object({
+  StartDate: dateStringSchema,
+  EndDate: dateStringSchema,
+}).refine(
+  data => {
+    const start = new Date(data.StartDate);
+    const end = new Date(data.EndDate);
+    return end >= start;
+  },
+  {
+    message: 'End date must be after or equal to start date',
+    path: ['EndDate'],
+  }
+);
+
 export const createRoomSchema = z.object({
   RoomName: z
     .string()
@@ -32,6 +65,8 @@ export const createRoomSchema = z.object({
       const num = parseInt(val, 10);
       return !isNaN(num) && num >= 1;
     }, 'Number of rooms must be at least 1'),
+  PriceIncreaseRanges: z.array(priceIncreaseRangeSchema).optional(),
+  ExcludedDateRanges: z.array(excludedDateRangeSchema).optional(),
 });
 
 export const updateRoomSchema = z.object({
@@ -66,6 +101,8 @@ export const updateRoomSchema = z.object({
   Facilities: z.array(z.string()).optional(),
   FeatureImage: z.union([z.instanceof(File), z.undefined()]).optional(),
   GalleryImages: z.array(z.instanceof(File)),
+  PriceIncreaseRanges: z.array(priceIncreaseRangeSchema).optional(),
+  ExcludedDateRanges: z.array(excludedDateRangeSchema).optional(),
 });
 
 export type CreateRoomFormData = z.infer<typeof createRoomSchema>;

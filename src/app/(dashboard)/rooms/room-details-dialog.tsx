@@ -139,6 +139,84 @@ export function RoomDetailsDialog({
             </div>
           )}
 
+          {/* Price Increase Ranges */}
+          {room.priceIncreaseRanges && room.priceIncreaseRanges.length > 0 && (
+            <div>
+              <h3 className='text-sm font-medium text-muted-foreground mb-2'>
+                Price Increase Ranges
+              </h3>
+              <div className='space-y-3'>
+                {room.priceIncreaseRanges.map((range, index) => (
+                  <div
+                    key={index}
+                    className='rounded-lg border p-4 bg-muted/50'
+                  >
+                    <div className='flex items-center justify-between mb-2'>
+                      <span className='text-sm font-semibold'>
+                        Price Increase Range {index + 1}
+                      </span>
+                    </div>
+                    <div className='grid grid-cols-1 gap-2 md:grid-cols-3 text-sm'>
+                      <div>
+                        <span className='text-muted-foreground'>Start Date:</span>{' '}
+                        <span className='font-medium'>
+                          {new Date(range.StartDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div>
+                        <span className='text-muted-foreground'>End Date:</span>{' '}
+                        <span className='font-medium'>
+                          {new Date(range.EndDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div>
+                        <span className='text-muted-foreground'>Increase Value:</span>{' '}
+                        <span className='font-medium'>{range.IncreaseValue}%</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Excluded Date Ranges */}
+          {room.excludedDateRanges && room.excludedDateRanges.length > 0 && (
+            <div>
+              <h3 className='text-sm font-medium text-muted-foreground mb-2'>
+                Excluded Date Ranges
+              </h3>
+              <div className='space-y-3'>
+                {room.excludedDateRanges.map((range, index) => (
+                  <div
+                    key={index}
+                    className='rounded-lg border p-4 bg-muted/50'
+                  >
+                    <div className='flex items-center justify-between mb-2'>
+                      <span className='text-sm font-semibold'>
+                        Excluded Date Range {index + 1}
+                      </span>
+                    </div>
+                    <div className='grid grid-cols-1 gap-2 md:grid-cols-2 text-sm'>
+                      <div>
+                        <span className='text-muted-foreground'>Start Date:</span>{' '}
+                        <span className='font-medium'>
+                          {new Date(range.StartDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div>
+                        <span className='text-muted-foreground'>End Date:</span>{' '}
+                        <span className='font-medium'>
+                          {new Date(range.EndDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Timestamps */}
           {(room.createdAt || room.updatedAt) && (
             <div className='pt-4 border-t'>
