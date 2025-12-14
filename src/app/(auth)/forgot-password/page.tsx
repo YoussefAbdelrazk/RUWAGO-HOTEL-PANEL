@@ -296,7 +296,16 @@ export default function ForgotPasswordPage() {
                       <FormItem>
                         <FormLabel>OTP Code</FormLabel>
                         <FormControl>
-                          <InputOTP maxLength={6} {...field}>
+                          <InputOTP
+                            maxLength={6}
+                            {...field}
+                            onChange={value => {
+                              // Only allow numbers
+                              const numericValue = value.replace(/\D/g, '');
+                              field.onChange(numericValue);
+                            }}
+                            pattern='^[0-9]*$'
+                          >
                             <InputOTPGroup>
                               <InputOTPSlot index={0} />
                               <InputOTPSlot index={1} />
@@ -315,8 +324,6 @@ export default function ForgotPasswordPage() {
                     )}
                   />
                 </div>
-
-                
 
                 <div className='flex gap-2'>
                   <Button

@@ -136,7 +136,16 @@ export function ChangeEmailForm({ currentEmail }: ChangeEmailFormProps) {
                 <FormItem>
                   <FormLabel>Verification Code</FormLabel>
                   <FormControl>
-                    <InputOTP maxLength={6} {...field}>
+                    <InputOTP
+                      maxLength={6}
+                      {...field}
+                      onChange={value => {
+                        // Only allow numbers
+                        const numericValue = value.replace(/\D/g, '');
+                        field.onChange(numericValue);
+                      }}
+                      pattern='^[0-9]*$'
+                    >
                       <InputOTPGroup>
                         <InputOTPSlot index={0} />
                         <InputOTPSlot index={1} />

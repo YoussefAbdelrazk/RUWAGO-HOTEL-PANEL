@@ -42,3 +42,6 @@ export interface RequestPayoutRequest {
   bookIds: number[];
   profileId: number;
 }
+
+
+

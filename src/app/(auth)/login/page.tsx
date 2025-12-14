@@ -196,9 +196,14 @@ export default function LoginPage() {
                         <InputOTP
                           maxLength={6}
                           value={field.value}
-                          onChange={field.onChange}
+                          onChange={value => {
+                            // Only allow numbers
+                            const numericValue = value.replace(/\D/g, '');
+                            field.onChange(numericValue);
+                          }}
                           onBlur={field.onBlur}
                           name={field.name}
+                          pattern='^[0-9]*$'
                         >
                           <InputOTPGroup>
                             <InputOTPSlot index={0} />
@@ -218,8 +223,6 @@ export default function LoginPage() {
                   )}
                 />
               </div>
-
-             
 
               <div className='flex gap-2'>
                 <Button

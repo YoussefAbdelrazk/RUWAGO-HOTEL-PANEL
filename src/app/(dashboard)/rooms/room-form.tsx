@@ -13,6 +13,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multi-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useFacilities } from '@/hooks/use-facilities';
 import { useCreateRoom, useRoom, useUpdateRoom } from '@/hooks/use-rooms';
 import {
@@ -34,6 +41,18 @@ interface RoomFormProps {
   roomId?: number;
   onSuccess?: () => void;
 }
+
+// Fake room type data
+const ROOM_TYPES = [
+  { value: '1', label: 'Suite' },
+  { value: '2', label: 'Mini Suite' },
+  { value: '3', label: 'Deluxe' },
+  { value: '4', label: 'Standard' },
+  { value: '5', label: 'Executive' },
+  { value: '6', label: 'Presidential' },
+  { value: '7', label: 'Family' },
+  { value: '8', label: 'Studio' },
+];
 
 export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
   const isEdit = !!roomId;
@@ -240,10 +259,21 @@ export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Room Type *</FormLabel>
-              <FormControl>
-                <Input type='number' placeholder='1' {...field} />
-              </FormControl>
-              <FormDescription>Property type ID (required)</FormDescription>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Select room type' />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {ROOM_TYPES.map(type => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormDescription>Select the room type (required)</FormDescription>
               <FormMessage />
             </FormItem>
           )}
