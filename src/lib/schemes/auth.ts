@@ -30,6 +30,7 @@ export const registerSchema = z
       .or(z.literal('')),
     password: z.string().min(8, 'Password must be at least 8 characters'),
     passwordConfirm: z.string().min(8, 'Password confirmation is required'),
+    stars: z.number().min(1, 'Stars must be at least 1').max(5, 'Stars must be at most 5'),
     facilityIds: z.array(z.number()).min(1, 'Please select at least one facility'),
   })
   .refine(data => data.password === data.passwordConfirm, {
@@ -86,6 +87,7 @@ export const verifyRegistrationOtpSchema = z.object({
     .optional()
     .or(z.literal('')),
   password: z.string().min(8, 'Password must be at least 8 characters'),
+  stars: z.number().min(1, 'Stars must be at least 1').max(5, 'Stars must be at most 5'),
   facilityIds: z.array(z.number()).min(1, 'Please select at least one facility'),
 });
 

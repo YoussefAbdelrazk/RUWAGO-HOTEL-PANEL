@@ -134,3 +134,20 @@ export const useVerifyRegistrationOtp = () => {
     },
   });
 };
+
+export const useLogout = () => {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    const { logout } = await import('@/lib/actions/auth');
+    await logout();
+    // Clear client-side cookies as well
+    document.cookie = 'accessToken=; path=/; max-age=0';
+    document.cookie = 'refreshToken=; path=/; max-age=0';
+    router.push('/login');
+  };
+
+  return {
+    logout: handleLogout,
+  };
+};

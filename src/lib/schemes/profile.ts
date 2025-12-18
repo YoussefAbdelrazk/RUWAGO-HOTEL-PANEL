@@ -9,6 +9,7 @@ export const updateProfileSchema = z.object({
   additionalMobile: z.string().max(20).optional().or(z.literal('')),
   nearestAirportName: z.string().optional().or(z.literal('')),
   nearestAirportKm: z.number().optional(),
+  stars: z.number().min(1, 'Stars must be at least 1').max(5, 'Stars must be at most 5').optional(),
   twoFAEnabled: z.boolean().optional(),
   isDisabled: z.boolean().optional(),
   facilityIds: z.array(z.number()).optional(),

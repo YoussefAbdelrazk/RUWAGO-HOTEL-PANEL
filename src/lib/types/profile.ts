@@ -9,6 +9,7 @@ export interface Profile {
   additionalMobile?: string;
   nearestAirportName?: string;
   nearestAirportKm?: number;
+  stars?: number;
   twoFAEnabled: boolean;
   isDisabled: boolean;
   facilityIds: number[];
@@ -27,6 +28,7 @@ export interface UpdateProfileRequest {
   additionalMobile?: string;
   nearestAirportName?: string;
   nearestAirportKm?: number;
+  stars?: number;
   twoFAEnabled?: boolean;
   isDisabled?: boolean;
   facilityIds?: number[];
@@ -49,10 +51,3 @@ export interface VerifyEmailChangeRequest {
 export interface VerifyEmailChangeResponse {
   message: string;
 }
-
-
-
-
-
-
-

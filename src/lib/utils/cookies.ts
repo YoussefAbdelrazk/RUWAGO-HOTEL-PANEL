@@ -49,6 +49,7 @@ export const setTokens = async (accessToken: string, refreshToken: string) => {
 
 export const removeTokens = async () => {
   const cookieStore = await cookies();
+  // Remove httpOnly cookies
   cookieStore.set({
     name: ACCESS_TOKEN_KEY,
     value: '',
@@ -62,6 +63,25 @@ export const removeTokens = async () => {
     name: REFRESH_TOKEN_KEY,
     value: '',
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+    maxAge: 0, // expires immediately
+  });
+  // Also remove non-httpOnly cookies (set by API route)
+  cookieStore.set({
+    name: 'accessToken',
+    value: '',
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+    maxAge: 0, // expires immediately
+  });
+  cookieStore.set({
+    name: 'refreshToken',
+    value: '',
+    httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     path: '/',

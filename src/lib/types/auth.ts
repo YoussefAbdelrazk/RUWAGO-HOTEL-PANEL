@@ -13,6 +13,7 @@ export interface RegisterRequest {
   additionalMobile?: string | null;
   password: string;
   passwordConfirm: string;
+  stars: number;
   facilityIds: number[];
 }
 
@@ -102,6 +103,7 @@ export interface VerifyRegistrationOtpRequest {
   mobile: string;
   additionalMobile?: string | null;
   password: string;
+  stars: number;
   facilityIds: number[];
 }
 

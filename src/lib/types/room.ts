@@ -15,6 +15,7 @@ export interface Room {
   roomType: number;
   bedsCount: number;
   sqft: number;
+  price: number;
   facilities: number[];
   featureImage: string;
   galleryImages?: string[];
@@ -38,6 +39,7 @@ export interface CreateRoomRequest {
   RoomType: string;
   BedsCount: string;
   Sqft: string;
+  Price: string;
   Facilities: string[];
   FeatureImage: File;
   GalleryImages?: File[];
@@ -51,6 +53,7 @@ export interface UpdateRoomRequest {
   RoomType?: string;
   BedsCount?: string;
   Sqft?: string;
+  Price?: string;
   Facilities?: string[];
   FeatureImage?: File;
   GalleryImages?: File[];

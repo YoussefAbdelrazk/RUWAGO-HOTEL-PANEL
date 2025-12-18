@@ -68,6 +68,7 @@ export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
       RoomType: '',
       BedsCount: '',
       Sqft: '',
+      Price: '',
       Facilities: [],
       FeatureImage: undefined,
       GalleryImages: [],
@@ -84,6 +85,7 @@ export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
       RoomType: '',
       BedsCount: '',
       Sqft: '',
+      Price: '',
       Facilities: [],
       FeatureImage: undefined,
       GalleryImages: [],
@@ -103,6 +105,7 @@ export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
         RoomType: room.roomType.toString(),
         BedsCount: room.bedsCount.toString(),
         Sqft: room.sqft.toString(),
+        Price: room.price?.toString() || '',
         Facilities: room.facilities.map(f => f.toString()),
         FeatureImage: undefined,
         GalleryImages: [],
@@ -131,6 +134,7 @@ export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
         if (formData.RoomType) updateData.RoomType = formData.RoomType;
         if (formData.BedsCount) updateData.BedsCount = formData.BedsCount;
         if (formData.Sqft) updateData.Sqft = formData.Sqft;
+        if (formData.Price) updateData.Price = formData.Price;
         if (formData.Facilities && formData.Facilities.length > 0) {
           updateData.Facilities = formData.Facilities;
         }
@@ -158,6 +162,7 @@ export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
           RoomType: formData.RoomType,
           BedsCount: formData.BedsCount,
           Sqft: formData.Sqft,
+          Price: formData.Price,
           Facilities: formData.Facilities,
           FeatureImage: formData.FeatureImage as File,
           GalleryImages: formData.GalleryImages,
@@ -313,6 +318,29 @@ export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
           )}
         />
       </div>
+
+      <FormField
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        control={form.control as any}
+        name='Price'
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Price *</FormLabel>
+            <FormControl>
+              <Input
+                type='number'
+                placeholder='150.50'
+                min={1}
+                max={1000000}
+                step='0.01'
+                {...field}
+              />
+            </FormControl>
+            <FormDescription>Room price (required, min: 1, max: 1,000,000)</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       {!formIsEdit && (
         <FormField
@@ -630,6 +658,7 @@ export function RoomForm({ roomId, onSuccess }: RoomFormProps) {
               RoomType: '',
               BedsCount: '',
               Sqft: '',
+              Price: '',
               Facilities: [],
               FeatureImage: undefined,
               GalleryImages: [],

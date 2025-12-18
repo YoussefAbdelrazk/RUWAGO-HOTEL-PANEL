@@ -98,6 +98,15 @@ export function RoomDetailsDialog({
               <h3 className='text-sm font-medium text-muted-foreground mb-1'>Square Footage</h3>
               <p className='text-lg font-semibold'>{room.sqft} sqft</p>
             </div>
+            <div>
+              <h3 className='text-sm font-medium text-muted-foreground mb-1'>Price</h3>
+              <p className='text-lg font-semibold'>
+                {new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'USD',
+                }).format(room.price || 0)}
+              </p>
+            </div>
             {room.numberOfRooms && (
               <div>
                 <h3 className='text-sm font-medium text-muted-foreground mb-1'>

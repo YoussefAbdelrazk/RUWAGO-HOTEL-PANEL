@@ -12,6 +12,13 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MultiSelect } from '@/components/ui/multi-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useFacilities } from '@/hooks/use-facilities';
@@ -41,6 +48,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       additionalMobile: '',
       nearestAirportName: '',
       nearestAirportKm: undefined,
+      stars: undefined,
       twoFAEnabled: false,
       isDisabled: false,
       facilityIds: [],
@@ -58,6 +66,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         additionalMobile: profile.additionalMobile || '',
         nearestAirportName: profile.nearestAirportName || '',
         nearestAirportKm: profile.nearestAirportKm,
+        stars: profile.stars,
         twoFAEnabled: profile.twoFAEnabled,
         isDisabled: profile.isDisabled,
         facilityIds: profile.facilityIds || [],
@@ -77,6 +86,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     if (data.additionalMobile) updateData.additionalMobile = data.additionalMobile;
     if (data.nearestAirportName) updateData.nearestAirportName = data.nearestAirportName;
     if (data.nearestAirportKm !== undefined) updateData.nearestAirportKm = data.nearestAirportKm;
+    if (data.stars !== undefined) updateData.stars = data.stars;
     if (data.twoFAEnabled !== undefined) updateData.twoFAEnabled = data.twoFAEnabled;
     if (data.isDisabled !== undefined) updateData.isDisabled = data.isDisabled;
     if (data.facilityIds) updateData.facilityIds = data.facilityIds;
@@ -218,7 +228,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
                     readOnly
                     type='number'
                     placeholder='Enter distance in km'
-                    {...field}
+                    value={field.value ?? ''}
                     onChange={e =>
                       field.onChange(e.target.value ? parseFloat(e.target.value) : undefined)
                     }
@@ -229,6 +239,36 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name='stars'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Hotel Stars <span className='text-red-500'> *</span>
+              </FormLabel>
+              <Select
+                onValueChange={value => field.onChange(parseInt(value, 10))}
+                value={field.value?.toString() || ''}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder='Select hotel stars (1-5)' />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value='1'>1 Star</SelectItem>
+                  <SelectItem value='2'>2 Stars</SelectItem>
+                  <SelectItem value='3'>3 Stars</SelectItem>
+                  <SelectItem value='4'>4 Stars</SelectItem>
+                  <SelectItem value='5'>5 Stars</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}

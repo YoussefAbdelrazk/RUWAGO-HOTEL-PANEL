@@ -53,6 +53,13 @@ export const createRoomSchema = z.object({
       const num = parseInt(val, 10);
       return !isNaN(num) && num >= 5 && num <= 10000;
     }, 'Square footage must be between 5 and 10000'),
+  Price: z
+    .string()
+    .min(1, 'Price is required')
+    .refine(val => {
+      const num = parseFloat(val);
+      return !isNaN(num) && num >= 1 && num <= 1000000;
+    }, 'Price must be between 1 and 1,000,000'),
   Facilities: z.array(z.string()).min(1, 'At least one facility is required'),
   FeatureImage: z
     .union([z.instanceof(File), z.undefined()])
@@ -97,6 +104,17 @@ export const updateRoomSchema = z.object({
         return !isNaN(num) && num >= 5 && num <= 10000;
       },
       { message: 'Square footage must be between 5 and 10000' },
+    ),
+  Price: z
+    .string()
+    .optional()
+    .refine(
+      val => {
+        if (!val) return true;
+        const num = parseFloat(val);
+        return !isNaN(num) && num >= 1 && num <= 1000000;
+      },
+      { message: 'Price must be between 1 and 1,000,000' },
     ),
   Facilities: z.array(z.string()).optional(),
   FeatureImage: z.union([z.instanceof(File), z.undefined()]).optional(),

@@ -24,6 +24,7 @@ export const roomsAPI = {
     formData.append('RoomType', data.RoomType);
     formData.append('BedsCount', data.BedsCount);
     formData.append('Sqft', data.Sqft);
+    formData.append('Price', data.Price);
     formData.append('NumberOfRooms', data.NumberOfRooms);
 
     // Append facilities
@@ -73,6 +74,7 @@ export const roomsAPI = {
     if (data.RoomType) formData.append('RoomType', data.RoomType);
     if (data.BedsCount) formData.append('BedsCount', data.BedsCount);
     if (data.Sqft) formData.append('Sqft', data.Sqft);
+    if (data.Price) formData.append('Price', data.Price);
 
     // Append facilities if provided
     if (data.Facilities && data.Facilities.length > 0) {

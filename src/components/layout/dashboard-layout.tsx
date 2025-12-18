@@ -14,6 +14,7 @@ import { Calendar, CreditCard, Home, Hotel, LogOut, Menu, Settings, User } from 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useLogout } from '@/hooks/use-auth';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -22,6 +23,7 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { logout } = useLogout();
 
   // Add class to html element to enable overflow-y: hidden for dashboard
   useEffect(() => {
@@ -30,12 +32,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       document.documentElement.classList.remove('dashboard-overflow-hidden');
     };
   }, []);
-
-  // const handleLogout = async () => {
-  //   tokenStorage.removeTokens();
-  //   await logout();
-  //   router.push('/login');
-  // };
 
   const navItems = [
     { href: '/', label: 'Dashboard', icon: Home },
@@ -85,7 +81,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <DropdownMenuContent align='end' className='w-56'>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem >
+                <DropdownMenuItem onClick={logout}>
                   <LogOut className='mr-2 h-4 w-4' />
                   Logout
                 </DropdownMenuItem>

@@ -20,6 +20,13 @@ import Image from 'next/image';
 // } from '@/components/ui/input-otp';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { PhoneInput } from '@/components/ui/phone-input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useRegister, useVerifyRegistrationOtp } from '@/hooks/use-auth';
 import { useFacilities } from '@/hooks/use-facilities';
 
@@ -78,6 +85,7 @@ export default function RegisterPage() {
       additionalMobile: '',
       password: '',
       passwordConfirm: '',
+      stars: 1,
       facilityIds: [],
     },
   });
@@ -94,6 +102,7 @@ export default function RegisterPage() {
       mobile: '',
       additionalMobile: '',
       password: '',
+      stars: 1,
       facilityIds: [],
     },
   });
@@ -111,6 +120,7 @@ export default function RegisterPage() {
         mobile: registrationData.mobile,
         additionalMobile: registrationData.additionalMobile || '',
         password: registrationData.password,
+        stars: registrationData.stars,
         facilityIds: registrationData.facilityIds,
       });
       hasResetOtpForm.current = true;
@@ -428,6 +438,37 @@ export default function RegisterPage() {
                     Please provide a Google Maps URL for your hotel location. You can get this by
                     searching for your location on Google Maps and copying the URL.
                   </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='stars'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Hotel Stars
+                    <span className='text-red-500'> *</span>
+                  </FormLabel>
+                  <Select
+                    onValueChange={value => field.onChange(parseInt(value, 10))}
+                    value={field.value?.toString()}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Select hotel stars (1-5)' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value='1'>1 Star</SelectItem>
+                      <SelectItem value='2'>2 Stars</SelectItem>
+                      <SelectItem value='3'>3 Stars</SelectItem>
+                      <SelectItem value='4'>4 Stars</SelectItem>
+                      <SelectItem value='5'>5 Stars</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

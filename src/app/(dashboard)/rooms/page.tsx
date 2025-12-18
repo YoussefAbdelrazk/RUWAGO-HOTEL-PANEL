@@ -97,6 +97,7 @@ export default function RoomsPage() {
               <TableHead>Type</TableHead>
               <TableHead>Beds</TableHead>
               <TableHead>Sqft</TableHead>
+              <TableHead>Price</TableHead>
               <TableHead>Facilities</TableHead>
               <TableHead>Number of Rooms</TableHead>
               <TableHead className='text-right'>Actions</TableHead>
@@ -105,7 +106,7 @@ export default function RoomsPage() {
           <TableBody>
             {rooms.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className='text-center py-8 text-muted-foreground'>
+                <TableCell colSpan={9} className='text-center py-8 text-muted-foreground'>
                   No rooms found. Create your first room to get started.
                 </TableCell>
               </TableRow>
@@ -131,6 +132,12 @@ export default function RoomsPage() {
                   <TableCell>{room.roomType}</TableCell>
                   <TableCell>{room.bedsCount}</TableCell>
                   <TableCell>{room.sqft}</TableCell>
+                  <TableCell className='font-semibold'>
+                    {new Intl.NumberFormat('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                    }).format(room.price || 0)}
+                  </TableCell>
                   <TableCell>
                     <div className='flex flex-wrap gap-1'>
                       {room.facilities.slice(0, 3).map(facility => (
