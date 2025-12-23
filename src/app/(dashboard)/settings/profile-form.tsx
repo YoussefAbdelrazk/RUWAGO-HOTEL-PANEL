@@ -40,18 +40,18 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const form = useForm<UpdateProfileFormData>({
     resolver: zodResolver(updateProfileSchema),
     defaultValues: {
-      hotelName: '',
-      description: '',
-      location: '',
-      additionalEmail: '',
-      mobile: '',
-      additionalMobile: '',
-      nearestAirportName: '',
-      nearestAirportKm: undefined,
-      stars: undefined,
-      twoFAEnabled: false,
-      isDisabled: false,
-      facilityIds: [],
+      hotelName: profile?.hotelName || '',
+      description: profile?.description || '',
+      location: profile?.location || '',
+      additionalEmail: profile?.additionalEmail || '',
+      mobile: profile?.mobile || '',
+      additionalMobile: profile?.additionalMobile || '',
+      nearestAirportName: profile?.nearestAirportName || '',
+      nearestAirportKm: profile?.nearestAirportKm,
+      stars: profile?.stars,
+      twoFAEnabled: profile?.twoFAEnabled || false,
+      isDisabled: profile?.isDisabled || false,
+      facilityIds: profile?.facilityIds || [],
     },
   });
 
@@ -101,7 +101,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     })) || [];
 
   return (
-    <Form {...form}>
+    <Form {...form} key={profile?.id || 'new'}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
         <FormField
           control={form.control}
@@ -250,7 +250,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               </FormLabel>
               <Select
                 onValueChange={value => field.onChange(parseInt(value, 10))}
-                value={field.value?.toString() || ''}
+                value={field.value?.toString()}
               >
                 <FormControl>
                   <SelectTrigger>
